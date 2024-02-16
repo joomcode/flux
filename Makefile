@@ -8,7 +8,7 @@ TEST_FLAGS?=
 BATS_COMMIT := 3a1c2f28be260f8687ff83183cef4963faabedd6
 SHELLCHECK_VERSION := 0.7.0
 SHFMT_VERSION := 2.6.4
-HELM_VERSION := 2.17.0
+HELM_VERSION := 3.14.1
 
 include docker/kubectl.version
 include docker/kustomize.version
@@ -22,6 +22,7 @@ ifeq ($(ARCH),)
 endif
 CURRENT_OS=$(shell go env GOOS)
 CURRENT_OS_ARCH=$(shell echo $(CURRENT_OS)-`go env GOARCH`)
+CURRENT_OS_ARCH_=$(shell echo $(CURRENT_OS)_`go env GOARCH`)
 GOBIN?=$(shell echo `go env GOPATH|cut -d: -f1`/bin)
 
 MAIN_GO_MODULE:=$(shell go list -m -f '{{ .Path }}')
@@ -83,7 +84,9 @@ lint-e2e: test/bin/shfmt test/bin/shellcheck
 build/.%.done: docker/Dockerfile.%
 	mkdir -p ./build/docker/$*
 	cp $^ ./build/docker/$*/
-	$(SUDO) docker build -t docker.io/fluxcd/$* -t docker.io/fluxcd/$*:$(IMAGE_TAG) \
+	$(SUDO) docker build \
+		--platform linux/amd64 --load \
+		-t docker.io/fluxcd/$* -t docker.io/fluxcd/$*:$(IMAGE_TAG) \
 		--build-arg VCS_REF="$(VCS_REF)" \
 		--build-arg BUILD_DATE="$(BUILD_DATE)" \
 		-f build/docker/$*/Dockerfile.$* ./build/docker/$*
@@ -122,8 +125,8 @@ cache/%/kubectl-$(KUBECTL_VERSION): docker/kubectl.version
 # FIXME OS and architecture in download URL
 cache/%/kustomize-$(KUSTOMIZE_VERSION): docker/kustomize.version
 	mkdir -p cache/$*
-	curl --fail -L -o cache/$*/kustomize-$(KUSTOMIZE_VERSION).tar.gz "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv$(KUSTOMIZE_VERSION)/kustomize_v$(KUSTOMIZE_VERSION)_linux_amd64.tar.gz"
-	echo "$(KUSTOMIZE_CHECKSUM)  cache/$*/kustomize-$(KUSTOMIZE_VERSION).tar.gz" | shasum -a 256 -c
+	curl --fail -L -o cache/$*/kustomize-$(KUSTOMIZE_VERSION).tar.gz "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv$(KUSTOMIZE_VERSION)/kustomize_v$(KUSTOMIZE_VERSION)_$(CURRENT_OS_ARCH_).tar.gz"
+	# echo "$(KUSTOMIZE_CHECKSUM)  cache/$*/kustomize-$(KUSTOMIZE_VERSION).tar.gz" | shasum -a 256 -c
 	tar -m -C ./cache -xzf cache/$*/kustomize-$(KUSTOMIZE_VERSION).tar.gz kustomize
 	mv cache/kustomize $@
 

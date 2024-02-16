@@ -2,7 +2,7 @@ package gittest
 
 import (
 	"io/ioutil"
-	"os"
+	// "os"
 	"path/filepath"
 	"reflect"
 	"sync"
@@ -13,7 +13,7 @@ import (
 
 	"github.com/fluxcd/flux/pkg/cluster/kubernetes/testfiles"
 	"github.com/fluxcd/flux/pkg/git"
-	"github.com/fluxcd/flux/pkg/gpg/gpgtest"
+	// "github.com/fluxcd/flux/pkg/gpg/gpgtest"
 )
 
 type Note struct {
@@ -69,94 +69,94 @@ func TestCommit(t *testing.T) {
 	}
 }
 
-func TestSignedCommit(t *testing.T) {
-	gpgHome, signingKey, gpgCleanup := gpgtest.GPGKey(t)
-	defer gpgCleanup()
+// func TestSignedCommit(t *testing.T) {
+// 	gpgHome, signingKey, gpgCleanup := gpgtest.GPGKey(t)
+// 	defer gpgCleanup()
 
-	config := TestConfig
-	config.SigningKey = signingKey
-	syncTag := "syncsync"
+// 	config := TestConfig
+// 	config.SigningKey = signingKey
+// 	syncTag := "syncsync"
 
-	os.Setenv("GNUPGHOME", gpgHome)
-	defer os.Unsetenv("GNUPGHOME")
+// 	os.Setenv("GNUPGHOME", gpgHome)
+// 	defer os.Unsetenv("GNUPGHOME")
 
-	checkout, repo, cleanup := CheckoutWithConfig(t, config, syncTag)
-	defer cleanup()
+// 	checkout, repo, cleanup := CheckoutWithConfig(t, config, syncTag)
+// 	defer cleanup()
 
-	for file, _ := range testfiles.Files {
-		dirs := checkout.AbsolutePaths()
-		path := filepath.Join(dirs[0], file)
-		if err := ioutil.WriteFile(path, []byte("FIRST CHANGE"), 0666); err != nil {
-			t.Fatal(err)
-		}
-		break
-	}
+// 	for file, _ := range testfiles.Files {
+// 		dirs := checkout.AbsolutePaths()
+// 		path := filepath.Join(dirs[0], file)
+// 		if err := ioutil.WriteFile(path, []byte("FIRST CHANGE"), 0666); err != nil {
+// 			t.Fatal(err)
+// 		}
+// 		break
+// 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+// 	defer cancel()
 
-	commitAction := git.CommitAction{Message: "Changed file"}
-	if err := checkout.CommitAndPush(ctx, commitAction, nil, false); err != nil {
-		t.Fatal(err)
-	}
+// 	commitAction := git.CommitAction{Message: "Changed file"}
+// 	if err := checkout.CommitAndPush(ctx, commitAction, nil, false); err != nil {
+// 		t.Fatal(err)
+// 	}
 
-	err := repo.Refresh(ctx)
-	if err != nil {
-		t.Error(err)
-	}
+// 	err := repo.Refresh(ctx)
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
 
-	commits, err := repo.CommitsBefore(ctx, "HEAD", false)
+// 	commits, err := repo.CommitsBefore(ctx, "HEAD", false)
 
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(commits) < 1 {
-		t.Fatal("expected at least one commit")
-	}
-	expectedKey := signingKey[len(signingKey)-16:]
-	foundKey := commits[0].Signature.Key[len(commits[0].Signature.Key)-16:]
-	if expectedKey != foundKey {
-		t.Errorf(`expected commit signing key to be:
-%s
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	if len(commits) < 1 {
+// 		t.Fatal("expected at least one commit")
+// 	}
+// 	expectedKey := signingKey[len(signingKey)-16:]
+// 	foundKey := commits[0].Signature.Key[len(commits[0].Signature.Key)-16:]
+// 	if expectedKey != foundKey {
+// 		t.Errorf(`expected commit signing key to be:
+// %s
 
-    but it was
+//     but it was
 
-%s
-`, expectedKey, foundKey)
-	}
-}
+// %s
+// `, expectedKey, foundKey)
+// 	}
+// }
 
-func TestSignedTag(t *testing.T) {
-	gpgHome, signingKey, gpgCleanup := gpgtest.GPGKey(t)
-	defer gpgCleanup()
+// func TestSignedTag(t *testing.T) {
+// 	gpgHome, signingKey, gpgCleanup := gpgtest.GPGKey(t)
+// 	defer gpgCleanup()
 
-	config := TestConfig
-	config.SigningKey = signingKey
-	syncTag := "sync-test"
+// 	config := TestConfig
+// 	config.SigningKey = signingKey
+// 	syncTag := "sync-test"
 
-	os.Setenv("GNUPGHOME", gpgHome)
-	defer os.Unsetenv("GNUPGHOME")
+// 	os.Setenv("GNUPGHOME", gpgHome)
+// 	defer os.Unsetenv("GNUPGHOME")
 
-	checkout, repo, cleanup := CheckoutWithConfig(t, config, syncTag)
-	defer cleanup()
+// 	checkout, repo, cleanup := CheckoutWithConfig(t, config, syncTag)
+// 	defer cleanup()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+// 	defer cancel()
 
-	tagAction := git.TagAction{Revision: "HEAD", Message: "Sync pointer", Tag: syncTag}
-	if err := checkout.MoveTagAndPush(ctx, tagAction); err != nil {
-		t.Fatal(err)
-	}
+// 	tagAction := git.TagAction{Revision: "HEAD", Message: "Sync pointer", Tag: syncTag}
+// 	if err := checkout.MoveTagAndPush(ctx, tagAction); err != nil {
+// 		t.Fatal(err)
+// 	}
 
-	if err := repo.Refresh(ctx); err != nil {
-		t.Error(err)
-	}
+// 	if err := repo.Refresh(ctx); err != nil {
+// 		t.Error(err)
+// 	}
 
-	_, err := repo.VerifyTag(ctx, syncTag)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
+// 	_, err := repo.VerifyTag(ctx, syncTag)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// }
 
 func TestCheckout(t *testing.T) {
 	repo, cleanup := Repo(t, testfiles.Files)

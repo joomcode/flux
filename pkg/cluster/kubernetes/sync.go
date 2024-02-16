@@ -586,7 +586,7 @@ func (c *Kubectl) apply(logger log.Logger, cs changeSet, errored map[resource.ID
 
 	objs = cs.objs["apply"]
 	sort.Sort(applyOrder(objs))
-	f(objs, "apply")
+	f(objs, "apply", "--server-side")
 	return errs
 }
 

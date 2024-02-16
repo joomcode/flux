@@ -85,7 +85,7 @@ var Files = map[string]string{
 	"garbage": "This should just be ignored, since it is not YAML",
 	// Some genuine manifests
 	"helloworld-deploy.yaml": `---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: helloworld
@@ -113,7 +113,7 @@ spec:
 `,
 	// Automated deployment with semver enabled
 	"semver-deploy.yaml": `---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: semver
@@ -136,7 +136,7 @@ spec:
         ports:
         - containerPort: 80
 `,
-	"locked-service-deploy.yaml": `apiVersion: extensions/v1beta1
+	"locked-service-deploy.yaml": `apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
@@ -158,7 +158,7 @@ spec:
         ports:
         - containerPort: 80
 `,
-	"test/test-service-deploy.yaml": `apiVersion: extensions/v1beta1
+	"test/test-service-deploy.yaml": `apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: test-service
@@ -180,7 +180,7 @@ spec:
 `,
 	// A multidoc, since we support those now
 	"multi.yaml": `---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
@@ -218,7 +218,7 @@ spec:
 apiVersion: v1
 kind: List
 items:
-- apiVersion: apps/v1beta1
+- apiVersion: apps/v1
   kind: Deployment
   metadata:
     name: list-deploy
@@ -299,7 +299,7 @@ image:
   pullPolicy: IfNotPresent
 `,
 	"charts/nginx/templates/deployment.yaml": `---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "nginx.fullname" . }}
@@ -330,7 +330,7 @@ spec:
 }
 
 var FilesUpdated = map[string]string{
-	"helloworld-deploy.yaml": `apiVersion: extensions/v1beta1
+	"helloworld-deploy.yaml": `apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: helloworld
@@ -381,10 +381,10 @@ metadata:
   annotations:
     key: value
 `,
-	"staging/kustomization.yaml": `bases:
+	"staging/kustomization.yaml": `resources:
 - ../base/
 patches:
-- staging.yaml
+- path: staging.yaml
 `,
 	"staging/staging.yaml": `apiVersion: v1
 kind: Namespace
