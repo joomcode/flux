@@ -85,8 +85,8 @@ build/.%.done: docker/Dockerfile.%
 	mkdir -p ./build/docker/$*
 	cp $^ ./build/docker/$*/
 	$(SUDO) docker build \
-		--platform linux/amd64 --load \
-		-t docker.io/fluxcd/$* -t docker.io/fluxcd/$*:$(IMAGE_TAG) \
+		--platform linux/amd64 --push \
+		-t jfrog.joom.it/docker-images/fluxcd:1.25.4-0 \
 		--build-arg VCS_REF="$(VCS_REF)" \
 		--build-arg BUILD_DATE="$(BUILD_DATE)" \
 		-f build/docker/$*/Dockerfile.$* ./build/docker/$*
