@@ -539,8 +539,8 @@ func (c *Kubectl) apply(logger log.Logger, cs changeSet, errored map[resource.ID
 		if len(objs) == 0 {
 			return
 		}
-		logger.Log("cmd", cmd, "--server-side", "args", strings.Join(args, " "), "count", len(objs))
-		args = append(args, cmd, "--server-side")
+		logger.Log("cmd", cmd, "args", strings.Join(args, " "), "count", len(objs))
+		args = append(args, cmd)
 
 		var multi, single []applyObject
 		if len(errored) == 0 {
@@ -586,7 +586,7 @@ func (c *Kubectl) apply(logger log.Logger, cs changeSet, errored map[resource.ID
 
 	objs = cs.objs["apply"]
 	sort.Sort(applyOrder(objs))
-	f(objs, "apply")
+	f(objs, "--server-side", "apply")
 	return errs
 }
 
