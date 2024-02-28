@@ -87,6 +87,7 @@ build/.%.done: docker/Dockerfile.%
 	nerdctl build \
 		--platform linux/amd64,linux/arm64 \
 		-t jfrog.joom.it/docker-images/flux:1.25.4 \
+		--label com.joom.retention.maxDays=-1 \
 		--output type=image,name=jfrog.joom.it/docker-images/flux:1.25.4,push=true \
 		--build-arg VCS_REF="$(VCS_REF)" \
 		--build-arg BUILD_DATE="$(BUILD_DATE)" \
